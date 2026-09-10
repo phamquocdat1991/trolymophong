@@ -61,3 +61,38 @@ test('long Vietnamese descriptions and boundary inputs reach Gemini intact', asy
     }
   }
 });
+
+test('Gemini Resilience Gateway falls back to next model on 503 Overloaded or 429 Rate Limit', async (t) => {
+  const html = '<!doctype html><html><body>' + 'x'.repeat(200) + '<script>void 0;</script></body></html>';
+  const invokedModels = [];
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    const urlStr = String(url);
+    if (urlStr.includes('gemini-2.5-flash:generateContent')) {
+      invokedModels.push('gemini-2.5-flash');
+      return new Response('Overloaded', { status: 503 });
+    }
+    if (urlStr.includes('gemini-3.8-flash:generateContent')) {
+      invokedModels.push('gemini-3.8-flash');
+      return Response.json({
+        candidates: [
+          {
+            finishReason: 'STOP',
+            content: { parts: [{ text: JSON.stringify({ title: 'Sự nổi của vật', description: 'Vật lý 8', html }) }] },
+          },
+        ],
+      });
+    }
+    return new Response('Not Found', { status: 404 });
+  });
+
+  const response = await POST(request({ model: 'gemini-2.5-flash' }));
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('x-gemini-model-used'), 'gemini-3.8-flash');
+  const body = await response.json();
+  assert.equal(body.usedModel, 'gemini-3.8-flash');
+  assert.equal(body.fallbacks?.length, 1);
+  assert.equal(body.fallbacks[0].fromModel, 'gemini-2.5-flash');
+  assert.equal(body.fallbacks[0].toModel, 'gemini-3.8-flash');
+  assert.deepEqual(invokedModels, ['gemini-2.5-flash', 'gemini-3.8-flash']);
+});
+

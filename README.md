@@ -31,6 +31,12 @@ npm run start:vercel
 - AI đọc chủ đề/PDF/PNG/JPEG/WebP/TXT và tạo HTML tương tác. 5 tệp, tổng tối đa 3 MB để phù hợp giới hạn request serverless. Đây là điều chỉnh so với 10 MB/file trong video. File lớn cần bổ sung kho upload và Gemini Files API.
 - API Key chỉ ở React memory, gửi cùng yêu cầu HTTPS tới API server và Google; không ghi vào localStorage, source hoặc log. Đóng/tải lại trang cần nhập lại. Danh sách model lấy từ Gemini models.list, không hardcode model giả.
 - Kiểm tra đầu vào Zod, giới hạn nội dung/tệp, xử lý timeout/quota và dữ liệu AI không hoàn chỉnh. HTML chạy trong iframe sandbox allow-scripts với CSP chặn mạng/form/frame. Tải HTML vẫn giữ CSP chặn kết nối mạng.
+- **Gemini Resilience Gateway**: Tích hợp cơ chế điều phối bậc thang (Cascading Model Fallback) và ngắt độ trễ (Latency Timeout):
+  - Chuỗi tầng chất lượng cao: `gemini-3.8-flash` (25s) ➔ `gemini-3.7-flash` (20s) ➔ `gemini-3.6-flash` (20s) ➔ `gemini-3.5-flash-lite` (15s).
+  - Tự động bắt đầu từ model do giáo viên chọn và tiếp nối các model dự phòng an toàn.
+  - Tự động chuyển tầng ngay khi gặp HTTP 429 (Rate Limit), 503 (Server Overloaded), 504 (Deadline Exceeded) hoặc khi quá thời gian phản hồi.
+  - Hỗ trợ xoay vòng API Key dự phòng (`GEMINI_API_KEYS`) khi hết quota ngày.
+  - Dừng ngay đối với lỗi HTTP 400 (Bad Request / Schema) để bảo vệ tài nguyên.
 
 ## Giới hạn và kiểm thử
 
