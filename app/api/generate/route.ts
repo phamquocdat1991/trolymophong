@@ -34,7 +34,11 @@ QUY CHUẨN THỰC NGHIỆM KHOA HỌC CHUẨN XÁC & TRỰC QUAN:
 2. ĐỒ HỌA & DỤNG CỤ PHÒNG LAB CHÂN THỰC (Canvas 2D / SVG động):
    - Tái hiện dụng cụ thủy tinh trong suốt (ống nghiệm, đèn cồn có bấc và ngọn lửa, nam châm có cực N/S rõ nét).
    - Mô phỏng chuyển động trực quan: hạt sắt (xám) bị nam châm hút, lưu huỳnh (vàng) không bị hút; khi đun đèn cồn: lưu huỳnh nóng chảy vàng sánh -> vùng phản ứng phát sáng đỏ cam và lan dần trong hỗn hợp -> để nguội tạo chất rắn xám đen FeS -> thử nam châm: FeS không bị hút.
-   - Nếu là thí nghiệm sinh khí/sôi: vẽ bọt khí sủi tăm. Nếu là phản ứng kết tủa: dung dịch đục dần tạo cặn lắng đáy.
+   - HIỆN TƯỢNG NƯỚC SÔI & BAY HƠI (khi thí nghiệm liên quan đến nước sôi, bay hơi, chưng cất, nung sôi chất lỏng):
+     * BẮT BUỘC mô phỏng bọt khí chân thực: ban đầu bọt khí nhỏ li ti bám đáy cốc; khi nhiệt độ tăng tới 95°C - 100°C, bọt khí lớn cuộn trào dâng lên liên tục từ đáy và vỡ mạnh ở mặt nước làm mặt nước sôi sùng sục dao động sóng mạnh.
+     * BẮT BUỘC mô phỏng KHÓI HƠI NƯỚC BỐC LÊN (Rising Steam / Vapor): vẽ các đám mây hạt hơi nước màu trắng bán trong suốt (rgba(255,255,255,alpha)) liên tục bốc lên cuồn cuộn từ mặt nước, bay lên cao, nở to và tản mờ dần trong không khí theo vòng lặp requestAnimationFrame.
+     * Có nhiệt kế đo nhiệt độ thời gian thực (dừng ở 100°C không tăng thêm khi nước đang sôi).
+   - Nếu là phản ứng kết tủa: dung dịch đục dần tạo cặn lắng đáy. Nếu là phản ứng tạo khí: sủi bọt khí dâng trào.
 3. NHẬT KÝ QUAN SÁT & SƯ PHẠM:
    - Hộp nhật ký hiện tượng thời gian thực: mô tả rõ ràng mắt thấy, giải thích bản chất phản ứng và phương trình hóa học chuẩn mực.
    - Câu hỏi trắc nghiệm kiểm tra hiểu bài có giải thích đúng đắn.
