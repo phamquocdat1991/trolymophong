@@ -1,13 +1,13 @@
 import {z} from 'zod';
 export const maxDuration=120;
-const input=z.object({key:z.string().min(10).max(300),model:z.string().regex(/^gemini-[a-zA-Z0-9._-]+$/),topic:z.string().max(3000),subject:z.string().min(1).max(100),grade:z.string().max(50),details:z.string().max(2000),devices:z.string().max(200),action:z.enum(['','regenerate','edit']),revision:z.string().max(3000),existingHtml:z.string().max(500000)});
+const input=z.object({key:z.string().min(10).max(300),model:z.string().regex(/^gemini-[a-zA-Z0-9._-]+$/),topic:z.string().max(20000),subject:z.string().min(1).max(100),grade:z.string().max(50),details:z.string().max(2000),devices:z.string().max(200),action:z.enum(['','regenerate','edit']),revision:z.string().max(3000),existingHtml:z.string().max(500000)});
 const output=z.object({title:z.string().min(1).max(180),description:z.string().max(500),html:z.string().min(200).max(500000)});
 export async function POST(req:Request){try{if(Number(req.headers.get('content-length')||0)>4*1024*1024)return Response.json({error:'Tổng dung lượng tệp quá lớn.'},{status:413});const form=await req.formData();const parsed=input.safeParse(Object.fromEntries(['key','model','topic','subject','grade','details','devices','action','revision','existingHtml'].map(k=>[k,form.get(k)||''])));if(!parsed.success){
 // Use fixed messages only: validation issues can contain user input, including credentials.
 const messages:Record<string,string>={
 key:'API Key không hợp lệ: cần từ 10 đến 300 ký tự. Kiểm tra lại trong Cấu hình AI.',
 model:'Model AI không hợp lệ. Mở Cấu hình AI, kiểm tra kết nối, chọn model rồi áp dụng.',
-topic:'Chủ đề chi tiết vượt giới hạn 3.000 ký tự hoặc không đúng định dạng văn bản.',
+topic:'Chủ đề chi tiết vượt giới hạn 20.000 ký tự hoặc không đúng định dạng văn bản.',
 subject:'Môn học không hợp lệ. Vui lòng chọn lại môn học.',
 grade:'Lớp học không hợp lệ. Vui lòng chọn lại lớp.',
 details:'Thông số điều chỉnh vượt giới hạn 2.000 ký tự hoặc không đúng định dạng văn bản.',
