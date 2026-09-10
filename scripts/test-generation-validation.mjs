@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
+import {TEXT_LIMITS} from '../lib/generation-limits.mjs';
 import {POST} from '../app/api/generate/route.ts';
 
 const base = {
@@ -16,8 +17,9 @@ function request(changes = {}) {
 test('invalid input identifies the affected field without exposing submitted values', async () => {
   for (const [field, value, label] of [
     ['model', 'private-invalid-model', 'Model'],
-    ['topic', 'x'.repeat(3001), 'Chủ đề'],
-    ['details', 'x'.repeat(2001), 'Thông số'],
+    ['topic', 'x'.repeat(TEXT_LIMITS.topic+1), 'Chủ đề'],
+    ['revision', 'x'.repeat(TEXT_LIMITS.revision+1), 'Yêu cầu chỉnh sửa'],
+    ['details', 'x'.repeat(TEXT_LIMITS.details+1), 'Thông số'],
     ['key', 'SENSITIVE_' + 'x'.repeat(301), 'API Key'],
     ['subject', '', 'Môn học'],
   ]) {
@@ -36,4 +38,26 @@ test('new simulation accepts the reported topic without revision fields', async 
   const response = await POST(request());
   assert.equal(response.status, 502);
   assert.match((await response.json()).error, /API Key/);
+});
+
+test('long Vietnamese descriptions and boundary inputs reach Gemini intact', async (t) => {
+  const html = '<!doctype html><html><body>' + 'x'.repeat(200) + '<script>void 0;</script></body></html>';
+  const calls = [];
+  t.mock.method(globalThis, 'fetch', async (_url, init) => {
+    calls.push(JSON.parse(JSON.parse(init.body).contents[0].parts[0].text));
+    return Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({title:'Sự chuyển thể của nước',description:'Thí nghiệm',html})}]}}]});
+  });
+  const topic = 'Nước đá đang tan ở khoảng 0 °C.\nNước nóng dần rồi sôi ở 1 atm.\n'.repeat(100);
+  for (const changes of [
+    {topic},
+    {topic:'x\n'.repeat(TEXT_LIMITS.topic/2),details:'x'.repeat(TEXT_LIMITS.details)},
+    {action:'edit',revision:'x'.repeat(TEXT_LIMITS.revision),existingHtml:html},
+  ]) {
+    const response = await POST(request(changes));
+    assert.equal(response.status, 200);
+    const sent = calls.at(-1);
+    for (const field of ['topic','details','revision']) {
+      if (field in changes) assert.equal(sent[field], changes[field]);
+    }
+  }
 });
