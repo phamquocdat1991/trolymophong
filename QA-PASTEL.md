@@ -16,3 +16,7 @@ Still required before release:
 - Final production build and production smoke test after release.
 
 Blocker: the secure browser credential request was rejected by automatic security review because its generated sign-in label misrepresented an API-key configuration flow. No key was collected, exposed, persisted, or committed. Do not substitute mocked generation results for real API verification.
+
+## Chemistry browser verification
+
+Used the actual pH simulation through the browser slider and buttons. At pH 0, 6, 6.9, 7, 8, 14 the displayed H+ concentrations were respectively 1.00e+0, 1.00e-6, 1.26e-7, 1.00e-7, 1.00e-8, 1.00e-14 mol/L. Acid/neutral/base classification matched the model at 25 C. Correct and incorrect quiz answers both displayed explanatory feedback. Reset restored pH 7 and cleared feedback. Desktop diagram and controls visually inspected. This covers the built-in pH model, not an AI-generated reaction experiment or physical laboratory validation.
