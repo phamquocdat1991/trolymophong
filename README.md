@@ -2,6 +2,14 @@
 
 Ứng dụng tiếng Việt dựng theo video tham chiếu: trắng–xanh ngọc, thiết lập môn/lớp, nhập chủ đề hoặc tải file, tùy chỉnh điều kiện sử dụng và cấu hình Gemini.
 
+## Production và tự động triển khai
+
+- Website: https://tro-ly-mo-phong.vercel.app
+- Repository: https://github.com/phamquocdat1991/trolymophong
+- Project Vercel: `tro-ly-mo-phong`, team `QuocDat`.
+- Repository đã liên kết với Vercel; nhánh `main` theo dõi môi trường Production. Mỗi commit mới vào `main` kích hoạt build và triển khai production; bản đang chạy chỉ được thay thế khi build thành công.
+- Bản v2 có nút **Tạo lại** và **Chỉnh sửa** để thêm/bớt nội dung sau khi tạo mô phỏng. Khi hủy hoặc lỗi, bản hiện tại được giữ nguyên.
+
 ## Chạy với Next.js / Vercel
 
 Yêu cầu Node.js >= 22.13.
