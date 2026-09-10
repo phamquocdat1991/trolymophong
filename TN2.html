@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô Phỏng Thí Nghiệm: Sắt Tác Dụng Với Lưu Huỳnh</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #1a365d;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: #4a5568;
+            font-size: 0.95rem;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        @media (min-width: 850px) {
+            .main-container {
+                flex-direction: row;
+            }
+        }
+
+        .simulation-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 15px;
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        canvas {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 650px;
+            height: auto;
+            aspect-ratio: 16 / 9;
+        }
+
+        .controls-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2b6cb0;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 5px;
+        }
+
+        .step-btn {
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .step-btn:hover:not(:disabled) {
+            background-color: #2b6cb0;
+            transform: translateY(-1px);
+        }
+
+        .step-btn:disabled {
+            background-color: #cbd5e0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .step-btn.active {
+            background-color: #2c5282;
+            border-left: 4px solid #dd6b20;
+        }
+
+        .btn-reset {
+            background-color: #e53e3e;
+            margin-top: 10px;
+        }
+
+        .btn-reset:hover {
+            background-color: #c53030;
+        }
+
+        .status-box {
+            background-color: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            min-height: 80px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        .info-table th, .info-table td {
+            border: 1px solid #cbd5e0;
+            padding: 6px 8px;
+            text-align: center;
+        }
+
+        .info-table th {
+            background-color: #edf2f7;
+            color: #2d3748;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .badge-fe { background-color: #a0aec0; color: #1a202c; }
+        .badge-s { background-color: #ecc94b; color: #744210; }
+        .badge-fes { background-color: #4a5568; color: white; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>MÔ PHỎNG THÍ NGHIỆM HÓA HỌC LỚP 8</h1>
+    <p class="subtitle">Phản ứng giữa Sắt (Fe) và Lưu huỳnh (S) tạo thành Sắt(II) sulfide (FeS)</p>
+</header>
+
+<div class="main-container">
+    <div class="simulation-card">
+        <canvas id="simCanvas" width="650" height="365"></canvas>
+    </div>
+
+    <div class="controls-card">
+        <div class="section-title">Các bước thí nghiệm</div>
+        
+        <button class="step-btn" id="btnStep1" onclick="runStep(1)">
+            1. Trộn bột Fe và S (Tỉ lệ 7:4)
+        </button>
+        <button class="step-btn" id="btnStep2" onclick="runStep(2)" disabled>
+            2. Thử nam châm với Ống (1)
+        </button>
+        <button class="step-btn" id="btnStep3" onclick="runStep(3)" disabled>
+            3. Đun nóng Ống (2)
+        </button>
+        <button class="step-btn" id="btnStep4" onclick="runStep(4)" disabled>
+            4. Thử nam châm với Ống (2)
+        </button>
+        
+        <button class="step-btn btn-reset" onclick="resetSim()">
+            🔄 Làm lại thí nghiệm
+        </button>
+
+        <div class="section-title">Trạng thái & Hiện tượng</div>
+        <div class="status-box" id="statusText">
+            Sẵn sàng. Bấm <b>"1. Trộn bột Fe và S"</b> để bắt đầu thí nghiệm.
+        </div>
+    </div>
+</div>
+
+<div class="main-container" style="margin-top: 20px;">
+    <div style="background: white; width: 100%; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <div class="section-title">Bảng so sánh kết quả thí nghiệm</div>
+        <table class="info-table">
+            <thead>
+                <tr>
+                    <th>Tiêu chí</th>
+                    <th>Ống nghiệm (1): Chỉ trộn bột</th>
+                    <th>Ống nghiệm (2): Sau khi đun nóng & để nguội</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>Thành phần</b></td>
+                    <td>Hỗn hợp <span class="badge badge-fe">Fe</span> và <span class="badge badge-s">S</span></td>
+                    <td>Hợp chất <span class="badge badge-fes">FeS</span> (Sắt II sulfide)</td>
+                </tr>
+                <tr>
+                    <td><b>Màu sắc</b></td>
+                    <td>Xám vàng lẫn lộn (màu của Fe và S)</td>
+                    <td>Màu xám đen / đen dạng khối</td>
+                </tr>
+                <tr>
+                    <td><b>Tương tác với Nam châm</b></td>
+                    <td>Bột Fe bị hút dính về phía nam châm</td>
+                    <td>Không bị hút mạnh như Fe ban đầu</td>
+                </tr>
+                <tr>
+                    <td><b>Tạo chất mới?</b></td>
+                    <td><b>Không</b> (Biến đổi vật lý)</td>
+                    <td><b>Có</b> (Biến đổi hóa học: Fe + S &rarr; FeS)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const statusText = document.getElementById('statusText');
+
+    // App State
+    let currentStep = 0;
+    let animId = null;
+
+    // Simulation Data
+    let tube1Particles = [];
+    let tube2Particles = [];
+    let magnetPos = { x: -100, y: -100, targetX: -100, targetY: -100 };
+    let burnerOn = false;
+    let heatingProgress = 0; // 0 to 1
+    let reactionProgress = 0; // 0 to 1
+    let cooledDown = false;
+
+    // Tube Positions
+    const TUBE1_X = 220;
+    const TUBE2_X = 430;
+    const TUBE_Y = 80;
+    const TUBE_W = 40;
+    const TUBE_H = 160;
+
+    class Particle {
+        constructor(x, y, type) {
+            this.x = x;
+            this.y = y;
+            this.origX = x;
+            this.origY = y;
+            this.type = type; // 'Fe' (grey) or 'S' (yellow)
+            this.vx = 0;
+            this.vy = 0;
+            this.radius = 2.5 + Math.random() * 1.5;
+        }
+
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            if (this.type === 'Fe') {
+                ctx.fillStyle = '#616161';
+            } else if (this.type === 'S') {
+                ctx.fillStyle = '#fbc02d';
+            } else if (this.type === 'FeS') {
+                ctx.fillStyle = '#212121';
+            }
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
+
+    function init() {
+        tube1Particles = [];
+        tube2Particles = [];
+        magnetPos = { x: -100, y: -100, targetX: -100, targetY: -100 };
+        burnerOn = false;
+        heatingProgress = 0;
+        reactionProgress = 0;
+        cooledDown = false;
+        currentStep = 0;
+
+        document.getElementById('btnStep1').disabled = false;
+        document.getElementById('btnStep2').disabled = true;
+        document.getElementById('btnStep3').disabled = true;
+        document.getElementById('btnStep4').disabled = true;
+        
+        document.querySelectorAll('.step-btn').forEach(btn => btn.classList.remove('active'));
+
+        statusText.innerHTML = "Sẵn sàng. Bấm <b>'1. Trộn bột Fe và S'</b> để bắt đầu thí nghiệm.";
+        
+        if (!animId) {
+            animate();
+        }
+    }
+
+    function createParticles(centerX, bottomY) {
+        let arr = [];
+        // 7 Fe to 4 S ratio by count approximation for visually clear mixture
+        for (let i = 0; i < 90; i++) {
+            let px = centerX - (TUBE_W / 2 - 5) + Math.random() * (TUBE_W - 10);
+            let py = bottomY - 5 - Math.random() * 35;
+            let type = (i % 11 < 7) ? 'Fe' : 'S';
+            arr.push(new Particle(px, py, type));
+        }
+        return arr;
+    }
+
+    function runStep(step) {
+        currentStep = step;
+        document.querySelectorAll('.step-btn').forEach(btn => btn.classList.remove('active'));
+        
+        if (step === 1) {
+            document.getElementById('btnStep1').classList.add('active');
+            tube1Particles = createParticles(TUBE1_X, TUBE_Y + TUBE_H);
+            tube2Particles = createParticles(TUBE2_X, TUBE_Y + TUBE_H);
+            magnetPos.targetX = -100;
+            burnerOn = false;
+
+            statusText.innerHTML = "<b>Đã trộn hỗn hợp:</b> Bột Sắt màu xám, bột Lưu huỳnh màu vàng phân bố lẫn nhau. Không có sinh nhiệt, không tạo chất mới.";
+            
+            document.getElementById('btnStep2').disabled = false;
+        } 
+        else if (step === 2) {
+            document.getElementById('btnStep2').classList.add('active');
+            // Move magnet close to Tube 1
+            magnetPos.targetX = TUBE1_X - 45;
+            magnetPos.targetY = TUBE_Y + TUBE_H - 25;
+
+            statusText.innerHTML = "<b>Đưa nam châm lại gần Ống (1):</b> Bột sắt (xám) bị hút tiến về phía thành ống gần nam châm. Bột lưu huỳnh (vàng) không bị hút.";
+            
+            document.getElementById('btnStep3').disabled = false;
+        } 
+        else if (step === 3) {
+            document.getElementById('btnStep3').classList.add('active');
+            // Move magnet away, turn burner on
+            magnetPos.targetX = -100;
+            burnerOn = true;
+            heatingProgress = 0;
+            reactionProgress = 0;
+            cooledDown = false;
+
+            statusText.innerHTML = "<b>Đun nóng Ống (2):</b> Lưu huỳnh nóng chảy, sau đó xuất hiện <i>vùng cháy sáng đỏ-cam</i>. Phản ứng tỏa nhiều nhiệt và tự lan truyền!";
+            
+            document.getElementById('btnStep4').disabled = true; // wait till finished
+        } 
+        else if (step === 4) {
+            document.getElementById('btnStep4').classList.add('active');
+            // Move magnet close to Tube 2
+            magnetPos.targetX = TUBE2_X + 45;
+            magnetPos.targetY = TUBE_Y + TUBE_H - 25;
+
+            statusText.innerHTML = "<b>Đưa nam châm lại gần Ống (2):</b> Sản phẩm màu xám đen (FeS) không bị nam châm hút mạnh như sắt ban đầu. Biến đổi hóa học đã xảy ra hoàn toàn.";
+        }
+    }
+
+    function resetSim() {
+        init();
+    }
+
+    function update() {
+        // Magnet movement interpolation
+        magnetPos.x += (magnetPos.targetX - magnetPos.x) * 0.1;
+        magnetPos.y += (magnetPos.targetY - magnetPos.y) * 0.1;
+
+        // Tube 1 magnet attraction logic
+        if (currentStep === 2) {
+            tube1Particles.forEach(p => {
+                if (p.type === 'Fe') {
+                    p.x += (TUBE1_X - TUBE_W/2 + 4 - p.x) * 0.1;
+                }
+            });
+        } else {
+            tube1Particles.forEach(p => {
+                p.x += (p.origX - p.x) * 0.1;
+            });
+        }
+
+        // Heating & Reaction in Tube 2 logic
+        if (burnerOn) {
+            if (heatingProgress < 1) {
+                heatingProgress += 0.008;
+            } else if (reactionProgress < 1) {
+                reactionProgress += 0.006;
+            } else {
+                burnerOn = false; // Reaction finished, turn off burner automatically
+                cooledDown = true;
+                document.getElementById('btnStep4').disabled = false;
+                statusText.innerHTML = "<b>Phản ứng kết thúc & Đã nguội:</b> Sản phẩm thu được là khối chất rắn màu xám đen (Sắt(II) sulfide - FeS).";
+            }
+        }
+
+        // Transform tube 2 particles into FeS as reaction progresses
+        if (reactionProgress > 0) {
+            let countToTransform = Math.floor(reactionProgress * tube2Particles.length);
+            for (let i = 0; i < countToTransform; i++) {
+                tube2Particles[i].type = 'FeS';
+            }
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Stands
+        drawStand(120, TUBE1_X, TUBE_Y);
+        drawStand(330, TUBE2_X, TUBE_Y);
+
+        // Draw Alcohol Lamp under Tube 2 if required
+        drawAlcoholLamp(TUBE2_X, TUBE_Y + TUBE_H + 20, burnerOn);
+
+        // Draw Test Tubes
+        drawTestTube(TUBE1_X, TUBE_Y, TUBE_W, TUBE_H, "(1) Chỉ trộn");
+        drawTestTube(TUBE2_X, TUBE_Y, TUBE_W, TUBE_H, "(2) Đun nóng");
+
+        // Draw Particles in Tube 1
+        tube1Particles.forEach(p => p.draw());
+
+        // Draw Content / Glow / Particles in Tube 2
+        if (reactionProgress < 1 && !cooledDown) {
+            tube2Particles.forEach(p => p.draw());
+        }
+
+        // Glow effect during reaction in Tube 2
+        if (reactionProgress > 0 && reactionProgress < 1) {
+            let glowY = TUBE_Y + TUBE_H - 20;
+            let rad = ctx.createRadialGradient(TUBE2_X, glowY, 2, TUBE2_X, glowY, 30);
+            rad.addColorStop(0, 'rgba(255, 100, 0, 0.9)');
+            rad.addColorStop(0.6, 'rgba(255, 50, 0, 0.6)');
+            rad.addColorStop(1, 'rgba(255, 0, 0, 0)');
+            ctx.fillStyle = rad;
+            ctx.beginPath();
+            ctx.arc(TUBE2_X, glowY, 35, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw Solid FeS block when reaction finished
+        if (cooledDown || reactionProgress >= 1) {
+            ctx.beginPath();
+            ctx.fillStyle = '#2d3748';
+            ctx.roundRect(TUBE2_X - TUBE_W/2 + 3, TUBE_Y + TUBE_H - 35, TUBE_W - 6, 30, [0, 0, 10, 10]);
+            ctx.fill();
+            ctx.strokeStyle = '#1a202c';
+            ctx.stroke();
+        }
+
+        // Draw Magnet if visible
+        if (magnetPos.x > 0) {
+            drawMagnet(magnetPos.x, magnetPos.y, magnetPos.x > 300);
+        }
+    }
+
+    function drawTestTube(x, y, w, h, label) {
+        ctx.save();
+        
+        // Glass tube path
+        ctx.beginPath();
+        ctx.moveTo(x - w / 2, y);
+        ctx.lineTo(x - w / 2, y + h - w / 2);
+        ctx.arc(x, y + h - w / 2, w / 2, Math.PI, 0, true);
+        ctx.lineTo(x + w / 2, y);
+        
+        // Glass fill & stroke
+        ctx.fillStyle = 'rgba(226, 232, 240, 0.2)';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#a0aec0';
+        ctx.stroke();
+
+        // Rim at top
+        ctx.beginPath();
+        ctx.ellipse(x, y, w / 2 + 3, 4, 0, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Label
+        ctx.fillStyle = '#2d3748';
+        ctx.font = 'bold 13px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText(label, x, y - 15);
+
+        ctx.restore();
+    }
+
+    function drawStand(baseX, tubeX, tubeY) {
+        ctx.save();
+        ctx.fillStyle = '#718096';
+        // Base
+        ctx.fillRect(baseX, TUBE_Y + TUBE_H + 50, 100, 10);
+        // Rod
+        ctx.fillRect(baseX + 20, tubeY - 10, 8, TUBE_H + 60);
+        // Clamp
+        ctx.fillStyle = '#4a5568';
+        ctx.fillRect(baseX + 20, tubeY + 30, tubeX - (baseX + 20) + 5, 8);
+        ctx.restore();
+    }
+
+    function drawAlcoholLamp(x, y, isOn) {
+        ctx.save();
+        // Base / Glass body
+        ctx.fillStyle = '#cbd5e0';
+        ctx.beginPath();
+        ctx.moveTo(x - 20, y + 30);
+        ctx.lineTo(x + 20, y + 30);
+        ctx.lineTo(x + 15, y + 10);
+        ctx.lineTo(x - 15, y + 10);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Wick holder
+        ctx.fillStyle = '#a0aec0';
+        ctx.fillRect(x - 4, y, 8, 10);
+
+        // Flame
+        if (isOn) {
+            let flameHeight = 20 + Math.random() * 5;
+            let grad = ctx.createLinearGradient(x, y, x, y - flameHeight);
+            grad.addColorStop(0, '#ecc94b');
+            grad.addColorStop(0.5, '#dd6b20');
+            grad.addColorStop(1, 'rgba(229, 62, 62, 0)');
+
+            ctx.beginPath();
+            ctx.moveTo(x - 6, y);
+            ctx.quadraticCurveTo(x, y - flameHeight, x + 6, y);
+            ctx.fillStyle = grad;
+            ctx.fill();
+        }
+        ctx.restore();
+    }
+
+    function drawMagnet(x, y, isRightSide) {
+        ctx.save();
+        ctx.translate(x, y);
+        if (isRightSide) ctx.scale(-1, 1);
+
+        // Horseshoe magnet representation
+        ctx.lineWidth = 12;
+        
+        // North Pole (Red)
+        ctx.strokeStyle = '#e53e3e';
+        ctx.beginPath();
+        ctx.arc(0, 0, 18, -Math.PI/2, 0);
+        ctx.stroke();
+
+        // South Pole (Blue)
+        ctx.strokeStyle = '#3182ce';
+        ctx.beginPath();
+        ctx.arc(0, 0, 18, Math.PI, -Math.PI/2);
+        ctx.stroke();
+
+        // Labels
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('N', 0, -14);
+        ctx.fillText('S', -14, 2);
+
+        ctx.restore();
+    }
+
+    function animate() {
+        update();
+        draw();
+        animId = requestAnimationFrame(animate);
+    }
+
+    // Start simulation
+    init();
+</script>
+</body>
+</html>

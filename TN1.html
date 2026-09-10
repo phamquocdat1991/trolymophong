@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô phỏng Sự chuyển thể của Nước - Hóa học 8</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #333;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        h1 {
+            color: #1a365d;
+            font-size: 1.6rem;
+            margin-bottom: 5px;
+        }
+
+        p.subtitle {
+            color: #4a5568;
+            font-size: 0.95rem;
+        }
+
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            width: 100%;
+            max-width: 1000px;
+            justify-content: center;
+        }
+
+        .canvas-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1 1 450px;
+            min-width: 320px;
+        }
+
+        .controls-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 15px;
+            flex: 1 1 450px;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        canvas {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .status-box {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .status-title {
+            font-weight: bold;
+            color: #2b6cb0;
+            margin-bottom: 3px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #2d3748;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-burn {
+            background-color: #dd6b20;
+            color: white;
+        }
+        .btn-burn:hover { background-color: #c05621; }
+        .btn-burn.active { background-color: #e53e3e; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+
+        .btn-cool {
+            background-color: #3182ce;
+            color: white;
+        }
+        .btn-cool:hover { background-color: #2b6cb0; }
+        .btn-cool.active { background-color: #2c5282; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+
+        .btn-reset {
+            background-color: #718096;
+            color: white;
+        }
+        .btn-reset:hover { background-color: #4a5568; }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #edf2f7;
+        }
+
+        .data-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .data-label {
+            font-size: 0.75rem;
+            color: #718096;
+            text-transform: uppercase;
+        }
+
+        .data-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 140px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>THÍ NGHIỆM MÔ PHỎNG: SỰ CHUYỂN THỂ CỦA NƯỚC</h1>
+        <p class="subtitle">Quan sát sự thay đổi trạng thái và nhiệt độ của nước theo thời gian</p>
+    </header>
+
+    <div class="main-container">
+        <!-- CỘT BÊN TRÁI: KHU VỰC THÍ NGHIỆM -->
+        <div class="canvas-card">
+            <canvas id="simCanvas" width="400" height="380"></canvas>
+        </div>
+
+        <!-- CỘT BÊN PHẢI: BẢNG ĐIỀU KHIỂN & ĐỒ THỊ -->
+        <div class="controls-card">
+            <div class="status-box">
+                <div class="status-title" id="phaseTitle">Giai đoạn: Nước đá đang tan</div>
+                <div id="phaseDesc">Đá rắn đang hấp thụ nhiệt từ môi trường để chuyển thành nước lỏng. Nhiệt độ duy trì xấp xỉ 0 °C.</div>
+            </div>
+
+            <div class="data-grid">
+                <div class="data-item">
+                    <span class="data-label">Nhiệt độ</span>
+                    <span class="data-value" id="tempDisplay">0.0 °C</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Trạng thái chính</span>
+                    <span class="data-value" id="stateDisplay" style="font-size: 0.95rem;">Rắn + Lỏng</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Tỉ lệ đá</span>
+                    <span class="data-value" id="icePercentDisplay">100%</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Thời gian</span>
+                    <span class="data-value" id="timeDisplay">00:00</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Tác động nhiệt:</label>
+                <div class="btn-group">
+                    <button id="burnBtn" class="btn-burn">🔥 Đun đèn cồn</button>
+                    <button id="coolBtn" class="btn-cool">❄️ Làm lạnh</button>
+                    <button id="resetBtn" class="btn-reset">🔄 Làm lại</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Tốc độ đun / cấp nhiệt:</label>
+                <input type="range" id="heatSpeed" min="1" max="5" value="2">
+            </div>
+
+            <div class="control-group">
+                <label>Đồ thị Nhiệt độ theo Thời gian (°C / giây):</label>
+                <div class="chart-container">
+                    <canvas id="chartCanvas" width="400" height="130"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CẤU HÌNH HỆ THỐNG VÀ THUỘC TÍNH ---
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const chartCanvas = document.getElementById('chartCanvas');
+        const chartCtx = chartCanvas.getContext('2d');
+
+        // Trạng thái mô phỏng
+        let simTime = 0; // giây mô phỏng
+        let temperature = -2.0; // Nhiệt độ ban đầu (°C)
+        let iceRatio = 1.0; // 1.0 = 100% đá, 0.0 = tan hết
+        let heatMode = 0; // 0: Môi trường (tan chậm), 1: Đun đèn cồn, -1: Làm lạnh cực sâu
+        let isRunning = true;
+
+        // Các hạt mô phỏng
+        let steamParticles = [];
+        let bubbleParticles = [];
+
+        // Lịch sử nhiệt độ để vẽ đồ thị
+        let historyData = []; // {time, temp}
+
+        // Đèn cồn / Cốc / Nhiệt kế Position Constants
+        const BEAKER = { x: 130, y: 140, w: 140, h: 170 };
+        const BURNER = { x: 150, y: 320, w: 100, h: 50 };
+
+        // Khởi tạo các phần tử UI
+        const burnBtn = document.getElementById('burnBtn');
+        const coolBtn = document.getElementById('coolBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const heatSpeedInput = document.getElementById('heatSpeed');
+        const tempDisplay = document.getElementById('tempDisplay');
+        const stateDisplay = document.getElementById('stateDisplay');
+        const icePercentDisplay = document.getElementById('icePercentDisplay');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const phaseTitle = document.getElementById('phaseTitle');
+        const phaseDesc = document.getElementById('phaseDesc');
+
+        // Event Listeners
+        burnBtn.addEventListener('click', () => {
+            if (heatMode === 1) heatMode = 0;
+            else heatMode = 1;
+            updateBtnStates();
+        });
+
+        coolBtn.addEventListener('click', () => {
+            if (heatMode === -1) heatMode = 0;
+            else heatMode = -1;
+            updateBtnStates();
+        });
+
+        resetBtn.addEventListener('click', resetSimulation);
+
+        function updateBtnStates() {
+            burnBtn.classList.toggle('active', heatMode === 1);
+            coolBtn.classList.toggle('active', heatMode === -1);
+        }
+
+        function resetSimulation() {
+            simTime = 0;
+            temperature = -2.0;
+            iceRatio = 1.0;
+            heatMode = 0;
+            historyData = [];
+            steamParticles = [];
+            bubbleParticles = [];
+            updateBtnStates();
+        }
+
+        // --- CẬP NHẬT LOGIC MÔ PHỎNG ---
+        function updatePhysics() {
+            const speedMultiplier = parseFloat(heatSpeedInput.value);
+            const dt = 0.1 * speedMultiplier;
+            simTime += dt;
+
+            // Tính toán sự thay đổi nhiệt độ & trạng thái
+            if (heatMode === 1) { // ĐUN ĐÈN CỒN
+                if (iceRatio > 0) {
+                    // Đang có đá: Tăng nhiệt lên 0°C rồi làm tan đá, nhiệt độ giữ ở ~0°C
+                    if (temperature < 0) {
+                        temperature += 0.5 * dt;
+                        if (temperature > 0) temperature = 0;
+                    } else {
+                        temperature = 0.0;
+                        iceRatio -= 0.015 * dt;
+                        if (iceRatio < 0) iceRatio = 0;
+                    }
+                } else if (temperature < 100) {
+                    // Đá đã tan hết: Nước lỏng nóng dần từ 0°C -> 100°C
+                    temperature += 0.8 * dt;
+                    if (temperature > 100) temperature = 100;
+                } else {
+                    // Nước sôi tại 100°C (Cân bằng hóa hơi)
+                    temperature = 100.0 + (Math.random() * 0.4 - 0.2); // Dao động nhỏ quanh 100
+                }
+            } else if (heatMode === -1) { // LÀM LẠNH
+                if (temperature > 0) {
+                    temperature -= 0.9 * dt;
+                    if (temperature < 0) temperature = 0;
+                } else if (iceRatio < 1.0) {
+                    temperature = 0.0;
+                    iceRatio += 0.012 * dt;
+                    if (iceRatio > 1.0) iceRatio = 1.0;
+                } else {
+                    temperature -= 0.4 * dt;
+                    if (temperature < -15) temperature = -15;
+                }
+            } else { // ĐỂ TỰ NHIÊN TRONG PHÒNG (Nhiệt độ phòng ~ 25°C)
+                const roomTemp = 25.0;
+                if (iceRatio > 0) {
+                    if (temperature < 0) temperature += 0.1 * dt;
+                    else {
+                        temperature = 0.0;
+                        iceRatio -= 0.003 * dt; // Tan chậm trong phòng
+                        if (iceRatio < 0) iceRatio = 0;
+                    }
+                } else {
+                    // Tỏa hoặc thu nhiệt về nhiệt độ phòng
+                    if (temperature < roomTemp) {
+                        temperature += 0.15 * dt;
+                        if (temperature > roomTemp) temperature = roomTemp;
+                    } else if (temperature > roomTemp) {
+                        temperature -= 0.2 * dt;
+                        if (temperature < roomTemp) temperature = roomTemp;
+                    }
+                }
+            }
+
+            // Lưu dữ liệu đồ thị (mỗi 0.5s)
+            if (historyData.length === 0 || simTime - historyData[historyData.length - 1].time >= 0.5) {
+                historyData.push({ time: simTime, temp: temperature });
+                if (historyData.length > 120) historyData.shift(); // Giữ tối đa 120 điểm
+            }
+
+            // Quản lý hạt bọt khí & hơi nước
+            updateParticles();
+            
+            // Cập nhật giao diện thông số
+            updateUI();
+        }
+
+        function updateParticles() {
+            // Bọt khí không khí hòa tan thoát ra (khi ấm từ 40°C - 80°C)
+            if (temperature > 30 && temperature < 85 && heatMode === 1) {
+                if (Math.random() < 0.2) {
+                    bubbleParticles.push({
+                        x: BEAKER.x + 15 + Math.random() * (BEAKER.w - 30),
+                        y: BEAKER.y + BEAKER.h - 15,
+                        r: 1 + Math.random() * 2,
+                        speed: 0.5 + Math.random() * 0.8,
+                        type: 'air'
+                    });
+                }
+            }
+
+            // Bọt khí sôi (Hơi nước hình thành mạnh ở đáy khi ~100°C)
+            if (temperature >= 98) {
+                for (let i = 0; i < 3; i++) {
+                    bubbleParticles.push({
+                        x: BEAKER.x + 10 + Math.random() * (BEAKER.w - 20),
+                        y: BEAKER.y + BEAKER.h - 10,
+                        r: 3 + Math.random() * 5,
+                        speed: 2 + Math.random() * 2.5,
+                        type: 'steam'
+                    });
+                }
+
+                // Hơi nước ngưng tụ tạo thành lớp sương mờ trắng phía trên cốc
+                if (Math.random() < 0.6) {
+                    steamParticles.push({
+                        x: BEAKER.x + 20 + Math.random() * (BEAKER.w - 40),
+                        y: BEAKER.y + 20,
+                        vx: (Math.random() - 0.5) * 0.8,
+                        vy: - (1 + Math.random() * 1.5),
+                        alpha: 0.4 + Math.random() * 0.3,
+                        size: 8 + Math.random() * 10
+                    });
+                }
+            }
+
+            // Di chuyển bọt khí
+            for (let i = bubbleParticles.length - 1; i >= 0; i--) {
+                let b = bubbleParticles[i];
+                b.y -= b.speed;
+                // Bọt khí biến mất khi chạm mặt nước
+                const waterSurfaceY = BEAKER.y + BEAKER.h - (50 + (1 - iceRatio * 0.1) * 80);
+                if (b.y <= waterSurfaceY) {
+                    bubbleParticles.splice(i, 1);
+                }
+            }
+
+            // Di chuyển hơi nước
+            for (let i = steamParticles.length - 1; i >= 0; i--) {
+                let p = steamParticles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.008;
+                p.size += 0.2;
+                if (p.alpha <= 0) {
+                    steamParticles.splice(i, 1);
+                }
+            }
+        }
+
+        function updateUI() {
+            tempDisplay.innerText = `${temperature.toFixed(1)} °C`;
+            icePercentDisplay.innerText = `${Math.round(iceRatio * 100)}%`;
+
+            const mins = Math.floor(simTime / 60).toString().padStart(2, '0');
+            const secs = Math.floor(simTime % 60).toString().padStart(2, '0');
+            timeDisplay.innerText = `${mins}:${secs}`;
+
+            // Xác định trạng thái và hiển thị giải thích
+            if (iceRatio > 0 && temperature <= 0) {
+                stateDisplay.innerText = "Rắn + Lỏng (Đá tan)";
+                phaseTitle.innerText = "a. Nước đá đang tan";
+                phaseDesc.innerHTML = "Hỗn hợp đá và nước lỏng cùng tồn tại. Trong quá trình nóng chảy, nhiệt độ giữ ổn định ở xấp xỉ <b>0 °C</b>.";
+            } else if (iceRatio === 0 && temperature < 98) {
+                stateDisplay.innerText = "Thể Lỏng";
+                phaseTitle.innerText = "b. Nước đá đã tan hết / Đang nóng dần";
+                phaseDesc.innerHTML = "Các viên đá đã biến mất hoàn toàn. Nước lỏng nhận nhiệt và nhiệt độ đang tăng dần.";
+            } else if (temperature >= 98) {
+                stateDisplay.innerText = "Lỏng + Khí (Sôi)";
+                phaseTitle.innerText = "c. Nước đang sôi";
+                phaseDesc.innerHTML = "Bọt khí hơi nước hình thành mạnh từ đáy và vỡ ở mặt thoáng. Trong suốt quá trình sôi, nhiệt độ giữ không đổi ở <b>100 °C</b> (ở 1 atm).";
+            } else if (iceRatio === 1.0 && temperature < 0) {
+                stateDisplay.innerText = "Thể Rắn (Nước đá)";
+                phaseTitle.innerText = "Đông đặc hoàn toàn";
+                phaseDesc.innerHTML = "Nước đã đông đặc hoàn toàn thành đá rắn. Nhiệt độ tiếp tục giảm xuống dưới 0 °C.";
+            }
+        }
+
+        // --- VẼ ĐỒ HỌA MÔ PHỎNG (CANVAS MAIN) ---
+        function drawSimulation() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Vẽ Kiềng sắt & Lưới tản nhiệt
+            ctx.strokeStyle = "#4a5568";
+            ctx.lineWidth = 4;
+            // Chân kiềng
+            ctx.beginPath();
+            ctx.moveTo(BEAKER.x - 20, 350);
+            ctx.lineTo(BEAKER.x + 10, BEAKER.y + BEAKER.h + 5);
+            ctx.lineTo(BEAKER.x + BEAKER.w - 10, BEAKER.y + BEAKER.h + 5);
+            ctx.lineTo(BEAKER.x + BEAKER.w + 20, 350);
+            ctx.stroke();
+
+            // Mặt kiềng ngang
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(BEAKER.x - 25, BEAKER.y + BEAKER.h + 5);
+            ctx.lineTo(BEAKER.x + BEAKER.w + 25, BEAKER.y + BEAKER.h + 5);
+            ctx.stroke();
+
+            // 2. Vẽ Đèn cồn (nếu đang đun)
+            drawBurner();
+
+            // 3. Vẽ Cốc thủy tinh & Nước
+            const waterHeight = 60 + (1 - iceRatio * 0.15) * 60; // Mực nước dâng nhẹ
+            const waterTopY = BEAKER.y + BEAKER.h - waterHeight;
+
+            // Thân nước lỏng
+            ctx.fillStyle = "rgba(147, 197, 253, 0.6)";
+            ctx.fillRect(BEAKER.x + 4, waterTopY, BEAKER.w - 8, waterHeight - 2);
+
+            // Bọt khí trong nước
+            bubbleParticles.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                ctx.fillStyle = b.type === 'steam' ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0.5)";
+                ctx.strokeStyle = "#93c5fd";
+                ctx.fill();
+                ctx.stroke();
+            });
+
+            // Vẽ Các viên Đá (nếu còn iceRatio > 0)
+            if (iceRatio > 0) {
+                drawIceCubes(waterTopY);
+            }
+
+            // Vẽ Cốc Thủy tinh (Thành cốc)
+            ctx.strokeStyle = "#cbd5e1";
+            ctx.lineWidth = 4;
+            ctx.strokeRect(BEAKER.x, BEAKER.y, BEAKER.w, BEAKER.h);
+            // Vạch chia độ trên cốc
+            ctx.fillStyle = "#64748b";
+            ctx.font = "10px sans-serif";
+            for (let i = 1; i <= 4; i++) {
+                let markY = BEAKER.y + BEAKER.h - (i * 30);
+                ctx.fillRect(BEAKER.x + 4, markY, 12, 2);
+                ctx.fillText(`${i * 50}ml`, BEAKER.x + 20, markY + 3);
+            }
+
+            // 4. Vẽ Hơi nước / Sương ngưng tụ phía trên
+            steamParticles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(241, 245, 249, ${p.alpha})`;
+                ctx.fill();
+            });
+
+            // 5. Vẽ Nhiệt kế
+            drawThermometer();
+        }
+
+        function drawBurner() {
+            // Bầu đèn cồn
+            ctx.fillStyle = "#94a3b8";
+            ctx.beginPath();
+            ctx.arc(BURNER.x + BURNER.w/2, BURNER.y + 30, 25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillRect(BURNER.x + BURNER.w/2 - 8, BURNER.y + 5, 16, 15);
+
+            // Ngọn lửa
+            if (heatMode === 1) {
+                let flameHeight = 30 + Math.sin(Date.now() * 0.02) * 5;
+                let gradient = ctx.createRadialGradient(
+                    BURNER.x + BURNER.w/2, BURNER.y, 2,
+                    BURNER.x + BURNER.w/2, BURNER.y - flameHeight/2, 20
+                );
+                gradient.addColorStop(0, "#fff5f5");
+                gradient.addColorStop(0.2, "#feebc8");
+                gradient.addColorStop(0.5, "#f6ad55");
+                gradient.addColorStop(1, "rgba(229, 62, 62, 0)");
+
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.moveTo(BURNER.x + BURNER.w/2 - 12, BURNER.y + 5);
+                ctx.quadraticCurveTo(BURNER.x + BURNER.w/2, BURNER.y - flameHeight - 10, BURNER.x + BURNER.w/2 + 12, BURNER.y + 5);
+                ctx.fill();
+            }
+        }
+
+        function drawIceCubes(waterTopY) {
+            ctx.save();
+            const size = 28 * Math.pow(iceRatio, 0.4); // Đá thu nhỏ dần khi tan
+            if (size > 3) {
+                ctx.fillStyle = "rgba(224, 242, 254, 0.85)";
+                ctx.strokeStyle = "#38bdf8";
+                ctx.lineWidth = 1.5;
+
+                // 3 viên đá nổi nhẹ/lơ lửng
+                const positions = [
+                    { x: BEAKER.x + 35, y: waterTopY + 10 },
+                    { x: BEAKER.x + 75, y: waterTopY + 20 },
+                    { x: BEAKER.x + 55, y: waterTopY + 45 }
+                ];
+
+                positions.forEach((p, idx) => {
+                    if (iceRatio > idx * 0.25) {
+                        ctx.beginPath();
+                        ctx.roundRect(p.x, p.y, size, size, 4);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                });
+            }
+            ctx.restore();
+        }
+
+        function drawThermometer() {
+            const tx = BEAKER.x + BEAKER.w - 35;
+            const ty = BEAKER.y - 20;
+            const th = 200;
+
+            // Thân nhiệt kế
+            ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            ctx.strokeStyle = "#64748b";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(tx, ty, 12, th, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            // Bầu nhiệt kế (ở dưới, tiếp xúc nước)
+            ctx.fillStyle = "#e53e3e";
+            ctx.beginPath();
+            ctx.arc(tx + 6, ty + th - 10, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cột thủy ngân biến thiên theo nhiệt độ (-20°C -> 110°C)
+            let clampedTemp = Math.max(-15, Math.min(110, temperature));
+            let mercuryHeight = ((clampedTemp + 20) / 130) * (th - 30);
+            
+            ctx.fillStyle = "#e53e3e";
+            ctx.fillRect(tx + 4, ty + th - 15 - mercuryHeight, 4, mercuryHeight);
+
+            // Vạch chia 0°C và 100°C
+            ctx.fillStyle = "#1e293b";
+            ctx.font = "bold 9px sans-serif";
+
+            // Vạch 0°C
+            let y0 = ty + th - 15 - ((0 + 20) / 130) * (th - 30);
+            ctx.fillRect(tx - 4, y0, 8, 1);
+            ctx.fillText("0°C", tx - 26, y0 + 3);
+
+            // Vạch 100°C
+            let y100 = ty + th - 15 - ((100 + 20) / 130) * (th - 30);
+            ctx.fillRect(tx - 4, y100, 8, 1);
+            ctx.fillText("100°C", tx - 36, y100 + 3);
+        }
+
+        // --- VẼ ĐỒ THỊ NHIỆT ĐỘ / THỜI GIAN ---
+        function drawChart() {
+            chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+
+            const padLeft = 35;
+            const padBottom = 20;
+            const w = chartCanvas.width - padLeft - 10;
+            const h = chartCanvas.height - padBottom - 10;
+
+            // Vẽ Trục tọa độ
+            chartCtx.strokeStyle = "#94a3b8";
+            chartCtx.lineWidth = 1;
+            chartCtx.beginPath();
+            chartCtx.moveTo(padLeft, 10);
+            chartCtx.lineTo(padLeft, 10 + h);
+            chartCtx.lineTo(padLeft + w, 10 + h);
+            chartCtx.stroke();
+
+            // Các đường nét đứt mốc 0°C và 100°C
+            chartCtx.setLineDash([3, 3]);
+            chartCtx.strokeStyle = "#cbd5e1";
+
+            // Đường 0°C (Giữa chart)
+            let y0 = 10 + h - ((0 + 20) / 130) * h;
+            chartCtx.beginPath();
+            chartCtx.moveTo(padLeft, y0);
+            chartCtx.lineTo(padLeft + w, y0);
+            chartCtx.stroke();
+
+            // Đường 100°C
+            let y100 = 10 + h - ((100 + 20) / 130) * h;
+            chartCtx.beginPath();
+            chartCtx.moveTo(padLeft, y100);
+            chartCtx.lineTo(padLeft + w, y100);
+            chartCtx.stroke();
+
+            chartCtx.setLineDash([]); // Reset nét liền
+
+            // Nhãn trục Y
+            chartCtx.fillStyle = "#64748b";
+            chartCtx.font = "10px sans-serif";
+            chartCtx.fillText("100°C", 2, y100 + 3);
+            chartCtx.fillText("0°C", 10, y0 + 3);
+
+            // Vẽ đường dữ liệu nhiệt độ
+            if (historyData.length > 1) {
+                chartCtx.strokeStyle = "#e53e3e";
+                chartCtx.lineWidth = 2;
+                chartCtx.beginPath();
+
+                let maxT = Math.max(60, simTime);
+                
+                historyData.forEach((pt, index) => {
+                    let x = padLeft + (pt.time / maxT) * w;
+                    let clamped = Math.max(-20, Math.min(110, pt.temp));
+                    let y = 10 + h - ((clamped + 20) / 130) * h;
+
+                    if (index === 0) chartCtx.moveTo(x, y);
+                    else chartCtx.lineTo(x, y);
+                });
+                chartCtx.stroke();
+            }
+        }
+
+        // --- VÒNG LẶP CHÍNH (GAME LOOP) ---
+        function loop() {
+            if (isRunning) {
+                updatePhysics();
+            }
+            drawSimulation();
+            drawChart();
+            requestAnimationFrame(loop);
+        }
+
+        // Chạy ứng dụng
+        loop();
+    </script>
+</body>
+</html>
