@@ -15,10 +15,11 @@ export interface ModelCandidate {
  * Phù hợp với tác vụ tạo bài mô phỏng HTML tương tác có Canvas/SVG, công thức và bài học.
  */
 export const DEFAULT_QUALITY_WATERFALL: readonly ModelCandidate[] = [
-  { model: 'gemini-3.8-flash', timeoutMs: 65000, label: 'Gemini 3.8 Flash (Chính)' },
+  { model: 'gemini-3.8-flash', timeoutMs: 50000, label: 'Gemini 3.8 Flash (Chính)' },
   { model: 'gemini-3.7-flash', timeoutMs: 45000, label: 'Gemini 3.7 Flash (Dự phòng 1)' },
   { model: 'gemini-3.6-flash', timeoutMs: 40000, label: 'Gemini 3.6 Flash (Dự phòng 2)' },
-  { model: 'gemini-3.5-flash-lite', timeoutMs: 30000, label: 'Gemini 3.5 Flash-Lite (Cứu hộ)' },
+  { model: 'gemini-3.5-flash', timeoutMs: 35000, label: 'Gemini 3.5 Flash (Dự phòng 3)' },
+  { model: 'gemini-3.5-flash-lite', timeoutMs: 25000, label: 'Gemini 3.5 Flash-Lite (Cứu hộ)' },
 ] as const;
 
 /**

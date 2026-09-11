@@ -4,7 +4,8 @@ import {executeWithCascadeFallback, buildDynamicWaterfall} from '../../../lib/ge
 export const maxDuration=120;
 // Multipart encodes line breaks as CRLF; count them like textarea LF line breaks.
 const textInput=(limit:number)=>z.preprocess(value=>typeof value==='string'?value.replace(/\r\n?/g,'\n'):value,z.string().max(limit));
-const input=z.object({key:z.string().min(10).max(300),model:z.string().regex(/^gemini-[a-zA-Z0-9._-]+$/),topic:textInput(TEXT_LIMITS.topic),subject:z.string().min(1).max(100),grade:z.string().max(50),details:textInput(TEXT_LIMITS.details),devices:z.string().max(200),action:z.enum(['','regenerate','edit']),revision:textInput(TEXT_LIMITS.revision),existingHtml:z.string().max(500000)});
+const keyInput=z.preprocess(value=>typeof value==='string'?value.trim():value,z.string().min(10).max(300));
+const input=z.object({key:keyInput,model:z.string().regex(/^gemini-[a-zA-Z0-9._-]+$/),topic:textInput(TEXT_LIMITS.topic),subject:z.string().min(1).max(100),grade:z.string().max(50),details:textInput(TEXT_LIMITS.details),devices:z.string().max(200),action:z.enum(['','regenerate','edit']),revision:textInput(TEXT_LIMITS.revision),existingHtml:z.string().max(500000)});
 const output=z.object({title:z.string().min(1).max(180),description:z.string().max(500),html:z.string().min(200).max(500000)});
 export async function POST(req:Request){try{if(Number(req.headers.get('content-length')||0)>4*1024*1024)return Response.json({error:'Tổng dung lượng tệp quá lớn.'},{status:413});const form=await req.formData();const parsed=input.safeParse(Object.fromEntries(['key','model','topic','subject','grade','details','devices','action','revision','existingHtml'].map(k=>[k,form.get(k)||''])));if(!parsed.success){
 // Use fixed messages only: validation issues can contain user input, including credentials.
