@@ -13,3 +13,75 @@
 .label,.setup h3,.input-tabs [data-slot=tabs-trigger],.button,.device-grid label,.searchbox input,.filter-chips button{font-size:14px}.setup-heading p,.suggestions,.suggestions button,.private-note,.welcome-card p,.section-heading p,.count,.lesson-meta,.lesson-bottom span,.bottom-note,.preview-label,.formula-caption,.teaching-tip b{font-size:12px}.lesson-info>p,.teaching-tip p{font-size:14px}.lesson-info>p{min-height:49px}.lesson-meta,.lesson-bottom span,.section-heading p{color:#687d72}.setup-body{padding:23px 20px}.device-grid label{font-size:12px}.label{font-size:12px}.input-tabs [data-slot=tabs-trigger]{font-size:12px}.suggestions button{font-size:11px}.welcome-tag{font-size:10px}.bottom-note>span:last-child{display:none}
 @media(max-width:800px){.topbar{flex-wrap:wrap;height:auto;min-height:110px;padding-top:12px}.topbar nav{display:flex;order:3;flex-basis:100%;margin:0;height:41px;gap:24px}.topbar nav button{font-size:13px}.device-grid label,.input-tabs [data-slot=tabs-trigger]{font-size:14px}.welcome-card p{font-size:13px}.lesson-info>p{min-height:0}.setup h3{font-size:13px}.section-heading{gap:8px}.count{white-space:nowrap}}
 .revision-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 20px;background:#fff;border-top:1px solid #e1ebe6;flex-shrink:0}.revision-toolbar .button{min-height:38px;padding:8px 13px;font-size:14px}.revision-toolbar>span{display:flex;align-items:center;gap:7px;font-size:13px;color:#648d7a}.cancel-revision{font-size:14px;color:#637769;text-decoration:underline}.revision-editor{padding:0 20px 14px;background:white;max-height:35dvh;overflow:auto;flex-shrink:0}.revision-editor label{display:block;font-size:14px;margin-bottom:8px}.revision-editor textarea{font-size:16px}.revision-editor>.button{margin-top:8px;margin-left:auto}.simulation-dialog iframe{min-height:120px}@media(max-width:600px){.revision-toolbar{padding:10px 14px}.revision-editor{padding:0 14px 10px}.simulation-footer{display:none}}
+
+/* --- GIAI ĐOẠN 1: DARK THEME SUPPORT (SLATE & TEAL) --- */
+.dark{--background:#0d141e;--foreground:#e2e8f0;--card:#141e2c;--card-foreground:#e2e8f0;--popover:#141e2c;--popover-foreground:#e2e8f0;--primary:#10b981;--primary-foreground:#022c22;--secondary:#132a2f;--secondary-foreground:#5eead4;--muted:#192638;--muted-foreground:#8899a6;--accent:#132e35;--accent-foreground:#2dd4bf;--destructive:#f43f5e;--border:#1f3045;--input:#1f3045;--ring:#10b981;--radius:.7rem}
+.dark body{background:#0a0f18;color:#d1d5db}
+.dark .topbar{background:#0f1725;border-bottom-color:#1c2d42}
+.dark .panel{background:#111b2a;border-color:#1c2d42;box-shadow:0 10px 30px #00000060}
+.dark .setup-heading{background:linear-gradient(110deg,#102a2a,#111b2a);border-bottom-color:#1c2d42}
+.dark .setup-heading h2{color:#f8fafc}
+.dark .setup-heading p{color:#64d8cb}
+.dark .label{color:#94a3b8}
+.dark .field,.dark textarea,.dark .settings-dialog input{background:#162335;border-color:#25374e;color:#f1f5f9}
+.dark .field:focus,.dark textarea:focus{border-color:#10b981;box-shadow:0 0 0 3px #10b98122}
+.dark .input-tabs [data-slot=tabs-list]{background:#162335;border-color:#25374e}
+.dark .input-tabs [data-slot=tabs-trigger]{color:#8899a6}
+.dark .input-tabs [data-state=active][data-slot=tabs-trigger]{background:#0f1725;color:#34d399;box-shadow:0 3px 9px #10b98122}
+.dark .dropzone{background:#181628;border-color:#5b4885;color:#c084fc}
+.dark .dropzone i{background:#2a2046}
+.dark .file-row{background:#1e1a32;color:#e2e8f0}
+.dark .suggestions button{background:#162335;color:#80e5d0}
+.dark .device-grid label{background:#162335;border-color:#25374e;color:#cbd5e1}
+.dark .device-grid label:has([data-state=checked]){border-color:#10b981;background:#0d2d2a}
+.dark .button.outline{background:#111b2a;border-color:#10b981;color:#34d399}
+.dark .button.outline:hover{background:#162b32}
+.dark .welcome-card{background:#0e2829;border-color:#1b4d4a}
+.dark .welcome-card h2{color:#34d399}
+.dark .welcome-card p{color:#99f6e4}
+.dark .welcome-icon{background:#16423e;color:#34d399}
+.dark .welcome-tag{border-color:#236159;color:#5eead4}
+.dark .searchbox{background:#111b2a;border-color:#1c2d42;color:#94a3b8}
+.dark .searchbox input{color:#f8fafc}
+.dark .library-tools>.field{background:#111b2a}
+.dark .filter-chips button{background:#111b2a;border-color:#1c2d42;color:#94a3b8}
+.dark .filter-chips button.selected{background:#059669;color:#fff;border-color:#059669}
+.dark .lesson-card{background:#111b2a;border-color:#1c2d42}
+.dark .lesson-card:hover{box-shadow:0 8px 24px #00000080}
+.dark .lesson-title{color:#f8fafc}
+.dark .lesson-info>p{color:#94a3b8}
+.dark .lesson-meta>span:first-child{background:#162335;color:#80e5d0}
+.dark .lesson-bottom{border-top-color:#1c2d42;color:#788c99}
+.dark .teaching-tip{background:#232115;border-color:#484323;color:#d1c984}
+.dark .teaching-tip b{color:#fef08a}
+.dark .teaching-tip p{color:#d1c984}
+.dark .simulation-top{background:#0f1725;border-bottom-color:#1c2d42;color:#f8fafc}
+.dark .simulation-actions{color:#34d399}
+.dark .simulation-footer,.dark .revision-toolbar,.dark .revision-editor{background:#0f1725;border-color:#1c2d42;color:#cbd5e1}
+.dark .settings-dialog{background:#0f1725;border-color:#1c2d42;color:#f8fafc}
+.dark .modal-heading{background:linear-gradient(110deg,#0d5e50,#065f46)}
+.dark .provider-card{background:#102826;border-color:#1b5e52}
+.dark .icon-button{background:#162335;border-color:#25374e;color:#94a3b8}
+.dark .icon-button:hover{color:#34d399;border-color:#10b981}
+.dark .help-button{color:#94a3b8}
+
+/* --- GIAI ĐOẠN 2: WORKSHEET PRINTING STYLES --- */
+@media print {
+  body * { visibility: hidden; }
+  .worksheet-printable, .worksheet-printable * { visibility: visible; }
+  .worksheet-printable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 24px;
+    background: white !important;
+    color: black !important;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 13pt;
+    line-height: 1.5;
+  }
+  .no-print { display: none !important; }
+}
+
